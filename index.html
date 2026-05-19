@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Last Message - Murder Mystery</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+    <div id="loadingScreen" class="screen active">
+        <div class="loading-container">
+            <img class="loading-logo" src="logo.png" alt="App logo" />
+            <h1 class="loading-title">LAST MESSAGE</h1>
+            <p class="loading-text">Recovering crime scene data...</p>
+            <div class="loading-bar">
+                <div class="loading-fill"></div>
+            </div>
+            <p class="loading-percent">0%</p>
+        </div>
+    </div>
+
+    <div id="phoneScreen" class="screen">
+        <div class="scene">
+            <div class="side-panel left-panel">
+                <div class="note-card">
+                    <h3>Evidence Snippets</h3>
+                    <p class="hidden-evidence" data-clue="photoMemo">• Olivia planned a secret warehouse meeting.</p>
+                    <p class="hidden-evidence" data-clue="noteReroute">• Taylor arranged a secret after-hours meeting on May 16.</p>
+                    <p class="hidden-evidence" data-clue="photoReceipt">• Olivia met someone late at night, according to a receipt.</p>
+                </div>
+                <div class="note-card">
+                    <h3>Quick Clues</h3>
+                    <p class="hidden-evidence" data-clue="emailTransfer">• Security found unauthorized access to Olivia's evidence file.</p>
+                    <p class="hidden-evidence" data-clue="taylorOffshore">• Taylor says Olivia knew too much and left a hint.</p>
+                </div>
+            </div>
+            <div class="phone-container">
+                
+            <div id="lockScreen" class="phone-screen active">
+                <div class="notch"></div>
+                <div class="lock-content">
+                    <div class="lock-info">
+                        <p id="lockTime">09:41</p>
+                        <p id="lockDate">Monday, May 18</p>
+                    </div>
+                    <div class="alert-box">
+                        <p class="alert-icon">⚠️</p>
+                        <p class="alert-text">Don't trust anyone.</p>
+                    </div>
+                    <p class="lock-hint-unlock">Try 1234 to unlock</p>
+                    <div class="passcode-pad">
+                        <input type="password" id="passcodeInput" placeholder="Enter Passcode" maxlength="4" />
+                        <button id="unlockBtn" class="btn-unlock">UNLOCK</button>
+                        <p id="passcodeError" class="error-msg"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="homeScreen" class="phone-screen">
+                <div class="notch"></div>
+                <div class="status-bar">
+                    <span id="statusTime">9:41</span>
+                    <span id="clueCount">Clues: 0/12</span>
+                   <div class="status-controls">
+    <button id="musicToggleBtn" class="btn-music" title="Mute music">🎵</button>
+    <button id="helpBtn" class="btn-help">?</button>
+</div>
+
+<audio id="bgMusic" loop>
+    <source src="sounds/background.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+    const music = document.getElementById("bgMusic");
+    const musicToggleBtn = document.getElementById("musicToggleBtn");
+
+    document.addEventListener("click", () => {
+        music.volume = 0.3;
+
+        music.play().catch(error => {
+            console.log("Autoplay blocked:", error);
+        });
+    }, { once: true });
+
+    musicToggleBtn.addEventListener("click", () => {
+
+        music.muted = !music.muted;
+
+        if (music.muted) {
+            musicToggleBtn.textContent = "🔇";
+            musicToggleBtn.title = "Unmute music";
+        } else {
+            musicToggleBtn.textContent = "🎵";
+            musicToggleBtn.title = "Mute music";
+        }
+
+    });
+</script>
+                </div>
+                <div class="home-content">
+                    <div class="app-grid">
+                        <div class="app-icon" id="messagesApp" data-app="messages">
+                            <div class="app-bg msg-bg">💬</div>
+                            <p>Messages</p>
+                        </div>
+                        <div class="app-icon" id="galleryApp" data-app="gallery">
+                            <div class="app-bg gallery-bg">📸</div>
+                            <p>Gallery</p>
+                        </div>
+                        <div class="app-icon" id="notesApp" data-app="notes">
+                            <div class="app-bg notes-bg">📝</div>
+                            <p>Notes</p>
+                        </div>
+                        <div class="app-icon" id="contactsApp" data-app="contacts">
+                            <div class="app-bg contacts-bg">👥</div>
+                            <p>Contacts</p>
+                        </div>
+                        <div class="app-icon" id="socialApp" data-app="social">
+                            <div class="app-bg social-bg">📱</div>
+                            <p>SocialNet</p>
+                        </div>
+                        <div class="app-icon" id="emailApp" data-app="email">
+                            <div class="app-bg email-bg">✉️</div>
+                            <p>Email</p>
+                        </div>
+                        <div class="app-icon" id="caseFileApp" data-app="suspect">
+                            <div class="app-bg casefile-bg">🕵️</div>
+                            <p>Case File</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="messagesScreen" class="phone-screen app-screen">
+                <div class="app-header">
+                    <button class="btn-back" id="backBtn">← Back</button>
+                    <h2>Messages</h2>
+                    <div class="spacer"></div>
+                </div>
+                <div class="messages-list" id="messagesList"></div>
+            </div>
+
+            <div id="messageDetailScreen" class="phone-screen app-screen">
+                <div class="app-header">
+                    <button class="btn-back" id="backDetailBtn">← Back</button>
+                    <h2 id="contactName">Contact</h2>
+                    <div class="spacer"></div>
+                </div>
+                <div class="conversation" id="conversation"></div>
+            </div>
+
+            <div id="galleryScreen" class="phone-screen app-screen">
+                <div class="app-header">
+                    <button class="btn-back" id="backGalleryBtn">← Back</button>
+                    <h2>Gallery</h2>
+                    <div class="spacer"></div>
+                </div>
+                <div class="gallery-grid" id="galleryGrid"></div>
+            </div>
+
+            <div id="photoDetailScreen" class="phone-screen app-screen">
+                <div class="app-header">
+                    <button class="btn-back" id="backPhotoBtn">← Back</button>
+                    <h2>Photo</h2>
+                    <div class="spacer"></div>
+                </div>
+                <div class="photo-viewer">
+                    <div id="photoImage" class="photo-image"></div>
+                    <p id="photoCaption" class="photo-caption"></p>
+                </div>
+            </div>
+
+            <div id="notesScreen" class="phone-screen app-screen">
+                <div class="app-header">
+                    <button class="btn-back" id="backNotesBtn">← Back</button>
+                    <h2>Notes</h2>
+                    <div class="spacer"></div>
+                </div>
+                <div class="notes-list" id="notesList"></div>
+            </div>
+
+            <div id="noteDetailScreen" class="phone-screen app-screen">
+                <div class="app-header">
+                    <button class="btn-back" id="backNoteDetailBtn">← Back</button>
+                    <h2>Note</h2>
+                    <div class="spacer"></div>
+                </div>
+                <div class="note-detail">
+                    <div id="noteDetailDate" class="note-detail-date"></div>
+                    <div id="noteDetailText" class="note-detail-text"></div>
+                </div>
+            </div>
+
+            <div id="contactsScreen" class="phone-screen app-screen">
+                <div class="app-header">
+                    <button class="btn-back" id="backContactsBtn">← Back</button>
+                    <h2>Contacts</h2>
+                    <div class="spacer"></div>
+                </div>
+                <div class="contacts-list" id="contactsList"></div>
+            </div>
+
+            <div id="contactDetailScreen" class="phone-screen app-screen">
+                <div class="app-header">
+                    <button class="btn-back" id="backContactDetailBtn">← Back</button>
+                    <h2>Contact</h2>
+                    <div class="spacer"></div>
+                </div>
+                <div class="contact-detail">
+                    <div id="contactDetailName" class="contact-detail-name"></div>
+                    <div id="contactDetailInfo" class="contact-detail-info"></div>
+                </div>
+            </div>
+
+            <div id="socialScreen" class="phone-screen app-screen">
+                <div class="app-header">
+                    <button class="btn-back" id="backSocialBtn">← Back</button>
+                    <h2>SocialNet</h2>
+                    <div class="spacer"></div>
+                </div>
+                <div class="social-feed" id="socialFeed"></div>
+            </div>
+
+            <div id="emailScreen" class="phone-screen app-screen">
+                <div class="app-header">
+                    <button class="btn-back" id="backEmailBtn">← Back</button>
+                    <h2>Email</h2>
+                    <div class="spacer"></div>
+                </div>
+                <div class="emails-list" id="emailsList"></div>
+            </div>
+
+            <div id="emailDetailScreen" class="phone-screen app-screen">
+                <div class="app-header">
+                    <button class="btn-back" id="backEmailDetailBtn">← Back</button>
+                    <h2>Email</h2>
+                    <div class="spacer"></div>
+                </div>
+                <div class="email-detail">
+                    <div id="emailDetailFrom" class="email-detail-from"></div>
+                    <div id="emailDetailSubject" class="email-detail-subject"></div>
+                    <div id="emailDetailBody" class="email-detail-body"></div>
+                </div>
+            </div>
+
+            <div id="suspectScreen" class="phone-screen app-screen">
+                <div class="app-header">
+                    <button class="btn-back" id="backSuspectBtn">← Back</button>
+                    <h2>Who killed Olivia?</h2>
+                    <div class="spacer"></div>
+                </div>
+                <div class="suspect-list" id="suspectList"></div>
+            </div>
+        </div>
+        <div class="side-panel right-panel">
+            <div class="note-card">
+                <h3>Investigator Notes</h3>
+                <p>• Only the right suspect can be arrested with enough evidence.</p>
+                <p>• Use all apps to gather clues about Olivia Hart's murder.</p>
+            </div>
+            <div class="note-card">
+                <h3>Phone Status</h3>
+                <p>• Unlock with the hint on the lock screen.</p>
+                <p>• Tap ? for help anytime.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div id="introOverlay" class="modal-overlay intro-overlay">
+        <div class="modal-card">
+            <h2>Last Message</h2>
+            <p>The game begins when you find an abandoned phone at a murder scene.</p>
+            <p>The victim is Olivia Hart. Her body was discovered nearby, and this phone may hold the final clues.</p>
+            <p>You are an ordinary passerby, but now you have access to Olivia's last messages, notes, photos, and social activity.</p>
+            <p>Everything on the phone could be evidence in the case.</p>
+            <p>Then you notice a message that makes your skin crawl:</p>
+            <p><strong>“Don't trust anyone.”</strong></p>
+            <button id="closeIntroBtn" class="btn-primary">Continue</button>
+        </div>
+    </div>
+
+    <div id="helpOverlay" class="modal-overlay">
+        <div class="modal-card">
+            <h2>How to Play</h2>
+            <p>Explore each app to gather evidence: Messages, Gallery, Notes, SocialNet, and Email.</p>
+            <p>Each clue increases your evidence count. Once you have enough, open the Case File and make your accusation.</p>
+            <p>Tap the ? button anytime for help.</p>
+            <button id="closeHelpBtn" class="btn-primary">Got it</button>
+        </div>
+    </div>
+
+    <div id="guidancePopup" class="guidance-popup"></div>
+
+    <div id="resultScreen" class="screen">
+        <div class="result-container">
+            <h1 id="resultTitle">CASE CLOSED</h1>
+            <div id="resultText" class="result-text"></div>
+            <button id="playAgainBtn" class="btn-primary">Play Again</button>
+        </div>
+    </div>
+
+    <audio id="unlockSound" src="sounds/unlock.mp3" preload="auto"></audio>
+    <audio id="clueSound" src="sounds/clue-unlock.mp3" preload="auto"></audio>
+    <audio id="successSound" src="sounds/success.mp3" preload="auto"></audio>
+    <audio id="failSound" src="sounds/fail.mp3" preload="auto"></audio>
+
+<script>
+    document.addEventListener("click", function () {
+        const music = document.getElementById("bgMusic");
+
+        music.play().catch((error) => {
+            console.log("Autoplay blocked:", error);
+        });
+    }, { once: true });
+</script>
+
+    <script src="script.js"></script>
+</body>
+</html>
